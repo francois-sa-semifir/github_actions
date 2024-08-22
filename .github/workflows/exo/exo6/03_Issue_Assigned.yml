@@ -1,0 +1,28 @@
+# NF4-DO-01
+
+name: Issue Assigned
+
+on:
+  issues:
+    types: [assigned]
+
+env:
+  ISSUE_NUMBER: ${{ github.event.issue.number }}
+  BASE_BRANCH: develop
+  BRANCH_PREFIX: feature/issue-
+
+jobs:
+    create_issue_branch_job:
+        runs-on: ubuntu-latest
+    
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Create Issue Branch
+              run: |
+                git fetch origin $BASE_BRANCH
+                git checkout -b $BRANCH_PREFIX$ISSUE_NUMBER origin/$BASE_BRANCH
+                git push origin $BRANCH_PREFIX$ISSUE_NUMBER
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

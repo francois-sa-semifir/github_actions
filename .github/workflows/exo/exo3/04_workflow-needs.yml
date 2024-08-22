@@ -1,0 +1,16 @@
+name : Workflow Needs
+
+on: workflow_dispatch
+
+jobs:
+  job_first:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "1er job"
+        run: echo "1er job ok"
+  second_job:
+    runs-on: ubuntu-latest
+    needs: [job_first]
+    steps:
+      - name: "2eme job"
+        run: echo "2eme job ok"

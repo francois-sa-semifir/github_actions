@@ -1,0 +1,82 @@
+name: Matrix & Artifact
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  schedule:
+    # Déclenche le workflow automatiquement tous les lundis à minuit (UTC)
+    - cron: '0 0 * * 1'
+
+jobs:
+  build:
+    # Définit le système d'exploitation sur lequel le job sera exécuté, selon la matrice
+    runs-on: ${{ matrix.os }} 
+
+    strategy:
+      # Arrête toutes les autres exécutions si une combinaison de matrice échoue
+      fail-fast: true 
+      # Limite à deux le nombre de jobs qui peuvent s'exécuter en parallèle
+      max-parallel: 2 
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [16, 18, 20]
+        # Ajout d'une combinaison spécifique 
+        include:
+          - os: windows-latest
+            node-version: 22
+        # Exclusion des combinaisons
+        exclude:
+          - os: ubuntu-latest
+            node-version: 16
+          - os: windows-latest
+            node-version: 18
+          - os: macos-latest
+            node-version: 20
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        # Spécifie la version de Node.js à installer, selon la matrice
+        node-version: ${{ matrix.node-version }}
+
+      # Étape pour installer les dépendances du projet
+    - name: Install dependencies
+      run: npm install
+
+      # Étape pour exécuter le script de build
+    - name: Run build script
+      run: npm run build
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        # Nom de l'artefact, incluant l'OS et la version de Node.js
+        name: build-${{ matrix.os }}-node-${{ matrix.node-version }}
+        # Spécifie le chemin du dossier contenant les fichiers à inclure dans l'artefact
+        path: dist/
+
+  conditional-job:
+    runs-on: ubuntu-latest
+    needs: build
+    # Le job ne s'exécute que pour un push sur la branche main
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'  
+
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: build-ubuntu-latest-node-18
+
+    # Étape pour déployer en production (ici simulé par un message)
+    - name: Deploy to production
+      run: echo "Deploying to production..."

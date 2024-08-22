@@ -1,0 +1,30 @@
+name: Even or Odd
+on: workflow_dispatch
+  
+jobs:
+  even-or-odd:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Generate random number"
+        id: random_number
+        run: |
+          RANDOM_NUMBER=$(shuf -i 0-9 -n 1)
+          echo "Generated number: $RANDOM_NUMBER"
+          echo "::set-output name=RANDOM_NUMBER::$RANDOM_NUMBER"
+
+      - name: "Check if Even or Odd"
+        id: check_even_odd
+        run: |
+          if [ $(( ${{ steps.random_number.outputs.RANDOM_NUMBER }} % 2 )) -eq 0 ]; then
+            echo "::set-output name=IS_EVEN::true"
+          else
+            echo "::set-output name=IS_EVEN::false"
+          fi
+
+      - name: "Even number check"
+        if: steps.check_even_odd.outputs.IS_EVEN == 'true'
+        run: echo "${{ steps.random_number.outputs.RANDOM_NUMBER }} is an even number."
+
+      - name: "Odd number check"
+        if: steps.check_even_odd.outputs.IS_EVEN == 'false'
+        run: echo "${{ steps.random_number.outputs.RANDOM_NUMBER }} is an odd number."

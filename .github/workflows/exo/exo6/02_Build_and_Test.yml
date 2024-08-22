@@ -1,0 +1,36 @@
+# NF8-DO-01 et NF8-DO-02
+
+name: Build and Test
+
+on:
+  pull_request:
+    types: [opened, reopened]
+    branches: [develop]
+
+jobs:
+  build:
+    if: contains(github.head_ref, 'feature/')
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      # VERSION NF8-DO-01  
+      - run: npm install
+      - run: npm run build --if-present
+      - run: npm run test
+
+      # VERSION NF8-DO-02 (Améliorée)  
+      - run: npm run coverage > coverage_Node${{ matrix.node-version }}.txt
+
+      - name: upload artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage_Node${{ matrix.node-version }}
+          path: coverage/

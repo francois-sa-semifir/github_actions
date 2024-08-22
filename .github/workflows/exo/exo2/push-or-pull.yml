@@ -1,0 +1,38 @@
+# Nom de l'event
+name: Push or Pull ?
+# On passe les évènements qui nous intéressent
+on: [push, pull_request]
+
+
+# On déclare les variables d'environnement
+env:
+  PUSH: C'est un push !
+  PULL_REQUEST: C'est une PR !
+
+# On déclare les jobs
+jobs:
+  # Job qui concerne les push
+  push:
+    # Nul besoin de vérifier si c'est un push, puisque c'est forcément le cas
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+  
+      - name: Push
+        # Qui affichera le message souhaité
+        run: echo "$PUSH"
+
+  # Job qui concerne les pull requests
+  pull_request:
+    runs-on: ubuntu-latest
+    # On vérifie si c'est une pull request avec une condition
+    if: ${{ github.event_name == 'pull_request' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Pull Request
+        # Qui affichera le message souhaité
+        run: echo "$PR"

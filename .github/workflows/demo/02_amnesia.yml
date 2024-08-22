@@ -1,0 +1,25 @@
+name: Amnesia
+
+# Event trigger qui implique de déclencher le worklow à la main
+on: workflow_dispatch
+
+env:
+  NAME: François
+
+jobs:
+  say_hello:
+    runs-on: ubuntu-latest
+    env:
+      ENTREPRISE: Semifir
+    steps:
+      - name: "Dit bonjour"
+        run: echo "Salut $NAME ! Tu travailles chez $ENTREPRISE ? Alors bon $DAY à toi !"
+        env:
+          DAY: Lundi
+      - name: "Lundi ?"
+        run: echo "Quel jour sommes nous ? $DAY ?"
+  say_goodbye:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Dit au revoir"
+        run: echo "Au revoir $NAME ! Tu travailles pour quelle entreprise ? $ENTREPRISE ?"

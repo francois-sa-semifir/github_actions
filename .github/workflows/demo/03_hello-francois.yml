@@ -1,0 +1,19 @@
+name: Hello François
+# Event trigger qui implique de déclencher le worklow à la main
+on: workflow_dispatch
+
+env:
+  NAME: Alex
+
+jobs:
+  say_hello:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Dit bonjour"
+        # Si on utilise une variable d'env, elle ne peut être utilisé que dans un step
+        # Le runner n'y a pas acces si on l'utilise dans un job, et du coup ça marche pas !
+        if: ${{ env.NAME != 'François' }}
+        run: echo "Salut toi ! Tu n'es pas François ?! oO"
+      - name: "Hello François"
+        if: ${{ env.NAME == 'François' }}
+        run: echo "Salut $NAME ! Tu as l'air en pleine forme !"
